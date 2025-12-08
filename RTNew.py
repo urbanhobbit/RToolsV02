@@ -77,6 +77,7 @@ def load_definitions():
         return schema, item_descs
         
     except Exception as e:
+        st.sidebar.error(f"Error loading definitions: {e}")
         return {}, {}
 
 def get_schema_dict():
@@ -602,6 +603,10 @@ with tab1:
         show_ci_flag: bool = True,
         height: int = 450,
     ) -> alt.Chart:
+        
+        # Determine unique years for the axis ticks
+        chart_years = sorted(data["Year"].dropna().unique().astype(int))
+        
         base = alt.Chart(data)
 
         # Main layer: bar or line
@@ -611,7 +616,7 @@ with tab1:
             main_mark = base.mark_line(point=True)
 
         main = main_mark.encode(
-            x=alt.X("Year:Q", title=x_axis_title, axis=alt.Axis(format="d")),
+            x=alt.X("Year:Q", title=x_axis_title, axis=alt.Axis(format="04d", values=chart_years)),
             y=alt.Y("value:Q", title=y_axis_title),
             color=color_enc,
             strokeDash=dash_enc,
@@ -640,7 +645,7 @@ with tab1:
         ):
             if chart_type == "Bar Chart":
                 err = base.mark_errorbar().encode(
-                    x=alt.X("Year:Q", title=x_axis_title, axis=alt.Axis(format="d")),
+                    x=alt.X("Year:Q", title=x_axis_title, axis=alt.Axis(format="04d", values=chart_years)),
                     y=alt.Y("ci_low:Q", title=y_axis_title),
                     y2="ci_high:Q",
                     color=color_enc,
@@ -648,7 +653,7 @@ with tab1:
                 )
             else:
                 err = base.mark_errorband(opacity=0.2).encode(
-                    x=alt.X("Year:Q", title=x_axis_title, axis=alt.Axis(format="d")),
+                    x=alt.X("Year:Q", title=x_axis_title, axis=alt.Axis(format="04d", values=chart_years)),
                     y=alt.Y("ci_low:Q", title=y_axis_title),
                     y2="ci_high:Q",
                     color=color_enc,
