@@ -704,6 +704,7 @@ with tab1:
         dash_enc=None,
         x_off=None,
         show_ci_flag: bool = True,
+        height: int = 450,
     ) -> alt.Chart:
         base = alt.Chart(data)
 
@@ -759,7 +760,7 @@ with tab1:
 
         chart = alt.layer(*layers).properties(
             title=title_text,
-            height=450,  # Fixed height, width responsive
+            height=height,  # Dynamic height
         )
         return style_chart(chart)
 
@@ -795,8 +796,13 @@ with tab1:
                 else alt.value([0, 0]),
                 x_off="Country:N" if chart_type == "Bar Chart" else alt.value(0),
                 show_ci_flag=(error_bar_type != "None"),
+                height=600,  # Increased height
             )
-            st.altair_chart(chart, width="stretch")
+            
+            # Left aligned, narrower (approx 60% width)
+            c_chart, _ = st.columns([3, 2])
+            with c_chart:
+                st.altair_chart(chart, width="stretch")
     else:
         # Country panels -> grid of charts, one per country
         if graph_style == "Black & white (line styles)":
